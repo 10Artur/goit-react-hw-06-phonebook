@@ -8,13 +8,36 @@ import {
   ContactsLabel,
   ContactsBtn,
 } from './ContactsForm.styled';
+import { useDispatch, useSelector } from 'react-redux';
+import { addContact } from 'redux/contactsSlice';
 
-const ContactsFormSchema = Yup.object().shape({
-  name: Yup.string().required('Name is required!'),
-  number: Yup.string().min(10).max(12).required('Number is required!'),
-});
+export const ContactForm = () => {
+  const allContacts = useSelector(state => state.contactData.contacts);
+  const dispatch = useDispatch();
 
-export const ContactForm = ({ onAddContact }) => {
+  const ContactsFormSchema = Yup.object().shape({
+    name: Yup.string()
+      .test('is-unique', 'Name already exists', name => {
+        const existingName = allContacts.find(
+          contact => contact.name.toLowerCase() === name.toLowerCase()
+        );
+        return !existingName;
+      })
+      .required('Name is required!'),
+    number: Yup.string().min(10).max(12).required('Number is required!'),
+  });
+
+  const handleSubmit = (values, action) => {
+    const contact = {
+      id: nanoid(),
+      name: values.name,
+      number: values.number,
+    };
+
+    dispatch(addContact(contact));
+    action.resetForm();
+  };
+
   return (
     <Formik
       initialValues={{
@@ -22,10 +45,7 @@ export const ContactForm = ({ onAddContact }) => {
         number: '',
       }}
       validationSchema={ContactsFormSchema}
-      onSubmit={(values, actions) => {
-        onAddContact({ ...values, id: nanoid() });
-        actions.resetForm();
-      }}
+      onSubmit={handleSubmit}
     >
       <ContactsForm>
         <ContactsLabel>

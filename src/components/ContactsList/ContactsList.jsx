@@ -1,28 +1,30 @@
+import { useDispatch, useSelector } from 'react-redux';
+import { deleteContact } from 'redux/contactsSlice';
 import {
   ContactsListBtn,
   ContactsListItem,
   ContactsListItems,
-  ContactsListResetBtn,
 } from './ContactsList.styled';
 
-export const ContactsList = ({
-  filteredContacts,
-  onDeleteContact,
-  onResetContactsFilter,
-}) => {
+export const ContactsList = () => {
+  const dispatch = useDispatch();
+  const allContacts = useSelector(state => state.contactData.contacts);
+  const filterQuery = useSelector(state => state.contactData.filter);
+
+  const displayedContact = allContacts.filter(contact =>
+    contact.name.toLowerCase().includes(filterQuery.toLowerCase())
+  );
+
   return (
     <ContactsListItems>
-      {filteredContacts.map(contact => (
+      {displayedContact.map(contact => (
         <ContactsListItem key={contact.id}>
           {contact.name}: {contact.number}
-          <ContactsListBtn onClick={() => onDeleteContact(contact.id)}>
+          <ContactsListBtn onClick={() => dispatch(deleteContact(contact.id))}>
             Delete
           </ContactsListBtn>
         </ContactsListItem>
       ))}
-      <ContactsListResetBtn onClick={onResetContactsFilter}>
-        Reset
-      </ContactsListResetBtn>
     </ContactsListItems>
   );
 };
