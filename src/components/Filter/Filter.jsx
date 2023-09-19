@@ -19,7 +19,7 @@ export const Filter = () => {
   return (
     <FilterContainer>
       <FilterLabel htmlFor="filterInput">
-        Find contacts by name
+        Find contacts by name:
         <FilterInput
           id="filterInput"
           onChange={handleFilterChange}
